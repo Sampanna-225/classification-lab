@@ -21,5 +21,5 @@ Instead of just memorizing syntax or calling black-box functions, this repositor
    - Deconstructing standard binary $2 \times 2$ matrices (`TN`, `FP`, `FN`, `TP`).
    - Analyzing complex multi-label output shapes (`(n_outputs, 2, 2)` 3D arrays) and understanding macro/micro averaging.
 
-## 🎯 Philosophy
+##  Philosophy
 Building robust pipelines isn't just about writing code—it's about understanding the system logic beneath the syntax. This lab prioritizes deep conceptual mastery ("knowing") over syntax memorization.
