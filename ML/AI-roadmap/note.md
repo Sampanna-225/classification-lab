@@ -185,3 +185,41 @@ Adding in values:
 $$\text{Recall} = \frac{3}{3 + 1} = \frac{3}{4} = 0.75 \text{ (or 75\%)}$$
 
 What this means: Out of all the actual positive cases that existed in reality, your model successfully caught 75% of them (and missed 1).
+
+
+##  F1 Score:
+
+Precision and Recall collide with each other and its hard to grade a model solely based on them cause a model may have high recall (it guessed most of the 1s correct) but in doing soo solely spammed 1s on many possibles 0 hense precision may be low and vice versa. 
+
+So we need a single metric to grade our model balancing both false alrams and missed threats.
+
+The F1-Score is calculated using Precision ($P$) and Recall ($R$):
+
+$$F_1 = 2 \times \frac{\text{Precision} \times \text{Recall}}{\text{Precision} + \text{Recall}}$$
+
+### !!! IMPORTANT !!!
+
+Here we see the F1 score using harmonic mean. Why harmonic mean you may ask, why not arithmetic :
+
+Here is the hard truth , the below example shows how each mean acts up:
+
+**Arithmetic Mean**
+
+Its just a simple formulae how bad could it be taking the mean of precision and recall to establish a relation between them so even if one falls and other increases we still get the mean values, right?
+
+$$\text{Average} = \frac{1.0 + 0.0}{2} = \mathbf{0.5 \text{ (50\%)}}$$
+
+Here precision 1.0 is taken which says the model predicted 1 its always right but recall is set 0 meaning the model hit 0 targets. The average is 5.0.
+
+Now there can not be a model that guesses 1 100% accurately but has never guessed 1 correctly this is a model that can mathematically not exist. But we see its average 5.0 which makes no sense.
+
+**Harmonic Mean**
+
+Here we dont only find mean we find it accurately balancing each term with proper relation. So if either of the precision and recall tend to hit 0 the accuracy crashes striaght forward.
+
+$$F_1 = 2 \times \frac{1.0 \times 0.0}{1.0 + 0.0} = \mathbf{0.0 \text{ (0\%)}}$$
+
+But there is a little takeaway. The harmonic mean punishes extreme imbalance. It forces your model to prove that it can handle both false alarms and missed threats simultaneously. If a model sacrifices one completely to look good on the other, the F1-score exposes it instantly.
+
+It reflects hard on whats the actual prediction accuracy of the model.
+
