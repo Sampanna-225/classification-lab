@@ -1,4 +1,4 @@
-# Prototype 1 :
+# Prototype 1 : Custom Sequential Rule-Induction Engine from Scratch
 
 ## Status : Success 🟢
 
