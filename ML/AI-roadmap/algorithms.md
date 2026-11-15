@@ -58,7 +58,7 @@ $C$ (Number of Classes): The total number of distinct target classes.
 
 Range :
  0.0 : Purest form
- 0.5 : Maximum impurity 50/50 odds
+ 0.5 : Maximum impurity 50/50 odds for 2 data else it can rise up to $\frac{K-1}{K}$.
 
       An example :
 
