@@ -18,6 +18,16 @@
     - Standard and , not doesnt work in it cause they are the shortcuts used by python else we use & , | , ~ where they are and , or , not respectively
     - Eg : let x be an array then: 
         x = x[(x>20) | (x<10)]
+
+One thing is that if we want to check repeated 2D or even 3D arrays like i want to make a 2D array only have [1,0,0] in train2 = np.array([[1,0,0],[0,1,0],[0,0,1],[1,0,0]] ) we use np.all(condition, axis=) where the axis is where to check 1 is row , 2 is column and 3 is height.
+
+        mask = np.all(train2 == [1, 0, 0], axis=1)
+        result = train2[mask]
+But in elemination of a 2D array even a column matches it considers it so we use any instead.
+
+        mask.np.any(train2 != [1,0,0], axis=1)
+
+
 **RESHAPING :** Reshaping helps rearrange the dimensions of the arrays with just a simple rule:
     
     The total number of elements must remains the same so a 12 element array can be changed from (2,6) to (3, 4) or visevera on dimensions but the rows and columns must be multiplied to the total elements initially.
