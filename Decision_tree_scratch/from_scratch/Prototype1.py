@@ -35,20 +35,25 @@ class DecisioTree:
         self.data_predict = None
         
     def Process(self):
-        X_left = self.x
-        Y_left = self.y
+        X_left , X_temp = self.x , self.x
+        Y_left , Y_temp = self.y , self.y
+        
         result = []
         temp =[]
         threshold_list = (
             []
         )
-        X_right , Y_right = np.zeros(X_left.shape)  , np.zeros(Y_left.shape)
+        # X_right , Y_right = np.zeros(X_left.shape)  , np.zeros(Y_left.shape)
         
         while True:
             if len(X_left) == 0:
                 break
             features = [X_left[:,i] for i in range(X_left.shape[1])]
-            
+            best_gini = float('inf')
+            best_index = None
+            best_threshold = None
+            last_leaf = None
+
 
             for  n,chunk in enumerate(features): #enumerate gives both index and the value
                 GiniList = (
@@ -58,54 +63,60 @@ class DecisioTree:
                     mask = X_left[:,n] <= i
                     TempArray = Y_left[mask]
                     GiniList.append(self.Gini(TempArray))
-                
 
-                if round(min(GiniList),2) == 0.0:
-                    threshold = chunk[np.argmin(GiniList)]
-                    mask = X_left[:,n] <= threshold
-                    if n == 0 :
-                        X_right , Y_right = X_left[~mask] , Y_left[~mask]
-                    else:
-                        pass
+                if min(GiniList) < best_gini: # always need to reduce Gini each turn
+                    best_gini = min(GiniList)
+                    best_index = n
+                    best_threshold = chunk[np.argmin(GiniList)]
+                    mask = X_left[:,n] <= best_threshold
                     X_left , Y_left  =X_left[mask] , Y_left[mask]
-                    threshold_list.append((threshold , n)) # to see which column the feature represents.
-                    result.append((list(threshold_list), np.unique(Y_left , axis = 0)))
-                    continue
-
-                else:
-                    threshold = chunk[np.argmin(GiniList)]
-                    mask = X_left[:,n] <= threshold
-                    if n == 0 :
-                        X_right , Y_right = X_left[~mask] , Y_left[~mask]
-                    else:
-                        pass
-
-                    X_left , Y_left  =  X_left[mask] , Y_left[mask]
+                    threshold_list.append((best_threshold , best_index))
+                    last_leaf = np.unique(Y_left , axis = 0)
                     
-                    threshold_list.append((threshold , n)) # to see which column the feature represents.
 
+                elif best_index == None and best_threshold == None :
+                    break
 
-            X_left , Y_left = X_right , Y_right
+                
+            result.append((list(threshold_list), last_leaf ))
+            filter = np.any(Y_temp != last_leaf , axis=1)
+            X_left , Y_left = X_temp[filter] , Y_temp[filter]
+            X_temp , Y_temp = X_temp[filter] , Y_temp[filter]
+            threshold_list.clear()
+
         self.data_predict = result
         
 
-
-    def Show(self):
-        data = self.data_predict
-        df = pd.DataFrame(data, columns=["Rules/Thresholds", "Predicted Class"])
-        print(df)
-
     def predict(self, x:np.array):
-        rawY = np.unique(self.y , axis= 0)
+        rules_col = []
+        class_col = []
+        status_col = []
+
         for sample in self.data_predict:
-            guessX = x
-            for tup in sample[0]:
-                mask = guessX[:,tup[1]] <= tup[0]
+            rules = sample[0]
+            predicted_class = sample[1]
+            
+            rules_col.append(rules)
+            class_col.append(predicted_class)
+
+            guessX = x.copy()
+            for tup in rules:
+                mask = guessX[:, tup[1]] <= tup[0]
                 guessX = guessX[mask]
+                
             if len(guessX) == 0:
-                print("Threshold didnt match")
+                status_col.append("Threshold didnt match")
             else:
-                print("It matched")
+                status_col.append("It matched")
+
+       
+        df = pd.DataFrame({
+            "Rules/Thresholds": rules_col,
+            "Predicted Class": class_col,
+            "Status": status_col
+        })
+        print(df)
+        
             
     def Gini(self , labA:np.array):
         count_list = []
@@ -137,6 +148,5 @@ class DecisioTree:
 
 tempt = DecisioTree(train1, train2)
 tempt.Process()
-tempt.Show()
 tempt.predict(np.array([[1.6,1.2]]))
 
