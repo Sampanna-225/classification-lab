@@ -84,6 +84,11 @@ $Gini = 1 - 0.58 = \mathbf{0.42}$
 
 The most important fact we need to know is that Gini impurity is calculated at each step where we want to brach and ask Y/N qns until we hit closest to 0.0 (Absolute Purity)
 
+Also in a decision tree weighted gini is used. Means each threshold is used to split and the last weighted gini determines the best split case:
+$$\text{Weighted Gini} = \left(\frac{N_{\text{left}}}{N_{\text{total}}}\right)\text{Gini}(\text{left}) + \left(\frac{N_{\text{right}}}{N_{\text{total}}}\right)\text{Gini}(\text{right})$$
+
+
+
 ### <mark> We dont write a single line of qns in Decision tree : </mark>
    The tree goes through every feature x and takes it as a threshold and makes a split. Right after it checks the Gini Impurity and when the gini impurity decreases it filters out the data making a split and impure data goes to a direction and pure data goes towards another both sides constantly branching till Gini Impurity 0.0 to form a leaf.
 
