@@ -1,1 +1,1 @@
- if n == 0 :
+tempt.predict(np.array([[1.6,1.2]]))
