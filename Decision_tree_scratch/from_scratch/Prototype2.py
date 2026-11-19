@@ -2,14 +2,17 @@ import numpy as np
 
 class Decision_Tree:
     def __init__(self , X , Y):
+        if X is None or len(X) == 0 or X.shape[0] == 0:
+            raise ValueError("Input feature matrix X cannot be empty.")
         self.root_x = X
         self.root_y = Y
+        self.trained_root = None
         
 
     class Node:
-        def __init__(self ,outer_instance , X, Y , prev_value=None):
+        def __init__(self ,outer_instance , X, Y , prev_value=None ):
             self.x = X
-            self.y = Y
+            self.y = Y      
             self.root = outer_instance
             self.right = None
             self.left = None
@@ -21,13 +24,17 @@ class Decision_Tree:
             self.best_threshold = None
             self.best_index = None
             self.prev_value = prev_value if prev_value else None
+            self.predict_left = None
+            self.predict_right = None
+
+        
 
         def Tree(self):
-            if not self.prev_value:
-                raise "Tree didnt proceed no data to split"
+            if not self.prev_value and len(self.x) != len(self.root.root_x):
+                raise ValueError(f"No viable data to split")
                 
-            elif len(self.x) == 0:
-                self.prev_value.Leaf() #Just incase it comes close to make a leaf but fails to be
+            elif len(self.x) == 0 and  len(self.root.root_x) != 0:
+                self.predict_left = self.prev_value.Leaf() #Just incase it comes close to make a leaf but fails to be
                 return
             
             
@@ -61,8 +68,8 @@ class Decision_Tree:
                 self.left = self.root.Node(self.root , x_left , y_left,self.prev_value)
                 self.right = self.root.Node(self.root , x_right , y_right , self.prev_value)
                 #cause weighted gini evaluates both side gini and both reach near 0.0 means both dont need to be shifted.
-                self.right.Leaf() 
-                self.left.Leaf()
+                self.predict_right = self.right.Leaf() 
+                self.predict_left = self.left.Leaf()
                  
 
             else:
@@ -72,10 +79,15 @@ class Decision_Tree:
                 self.right.Tree()
 
         def Leaf(self):
+            if len(self.y) == 0:
+                return None
+            
             val , count = np.unique(self.y , axis= 0 , return_counts=True)
             max_count_index = np.argmax(count)
             return val[max_count_index]
 
+        
+                
 
 
     def Gini_Adv(self , labA:np.array , n):
@@ -105,4 +117,81 @@ class Decision_Tree:
         weight = total/n
         return gini_impurity * weight
         
-  
+    def train(self):
+        x = self.Node(self , self.root_x , self.root_y , None )
+        x.Tree()
+        self.trained_root = x
+
+
+    def predict(self , X ):
+        if self.trained_root is None:
+            raise ValueError("Model must be trained with .train() before calling .predict().")
+
+        X = np.asarray(X)
+        if X.ndim == 1:
+            X = X.reshape(1, -1)
+
+        predictions = []
+        for row in X: #each test sample calculation at once
+            curr = self.trained_root
+            pred = None
+
+            while curr is not None:
+                if curr.best_index is None or curr.best_threshold is None:
+                    
+                    pred = curr.predict_left if curr.predict_left is not None else curr.predict_right
+                    break
+
+                if row[curr.best_index] <= curr.best_threshold:
+                    if curr.predict_left is not None:
+                        pred = curr.predict_left
+                        break
+                    curr = curr.left
+                else:
+                    if curr.predict_right is not None:
+                        pred = curr.predict_right
+                        break
+                    curr = curr.right
+
+            predictions.append(pred)
+
+        return np.array(predictions)
+
+if __name__ == "__main__":
+    #Sample data to be trained
+    X_train = np.array([
+        [1.0, 2.0],
+        [1.5, 1.8],
+        [2.0, 1.5],
+        [7.5, 8.0],
+        [8.2, 8.8],
+        [9.0, 9.1],
+    ])
+    y_train = np.array([
+        [0],
+        [0],
+        [0],
+        [1],
+        [1],
+        [1],
+    ])
+# test data to be predicted
+    X_test = np.array([
+    [1.2, 1.9],
+    [1.8, 2.0],
+    [8.0, 8.5],
+    [9.2, 8.9],
+])
+    y_test = np.array([
+        [0],
+        [0],
+        [1],
+        [1],
+    ])
+
+    model = Decision_Tree(X_train, y_train) 
+    model.train() 
+
+    preds = model.predict(X_test) 
+    print("Predictions:\n", preds)
+    print("Expected:\n", y_test)
