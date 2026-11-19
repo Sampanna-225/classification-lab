@@ -6,7 +6,7 @@ class Decision_Tree:
             raise ValueError("Input feature matrix X cannot be empty.")
         self.root_x = X
         self.root_y = Y
-        self.trained_root = None
+        self.trained_root = None #saving the tree instance (whole recursive tree)
         
 
     class Node:
