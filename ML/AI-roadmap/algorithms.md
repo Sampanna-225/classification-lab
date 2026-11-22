@@ -14,8 +14,15 @@
 
     Eg : Say we have 3 Cats , 1 Dog and 1 Tiger closest neighbors to the new entry we classify it as a cat.
 
- <mark> The Key note here is that ' k ' must be odd number to avoid ties . </mark>
+ <mark> The Key note here is that ' k ' must be odd number to avoid ties for binary classification 0s or 1s but if we have 3 classes a tie can still occur. </mark>
 
+ A true fix can be distance weight voting:
+
+ $w_i = \frac{1}{d_i + \epsilon}$
+
+      where $\epsilon$ is a tiny number like 1e-8 to prevent division by zero if distance is 0.
+
+ Like this we can multiply the votes with the weights and the highest valued vote must be used.
 
  ## Decision Tree :
 
@@ -106,3 +113,60 @@ $$\text{Weighted Gini} = \left(\frac{N_{\text{left}}}{N_{\text{total}}}\right)\t
    ~ flips the boolean acting as a not gate turning True to False and vise-versa.
 
    Likely two branches are separated above with separated X and Y.
+
+## Random Forest:
+
+Random Forest is a combination of multiple decision tree which are fed datas collected of the same format and class . After training during testing phase each decision tree vote on a class. The class with the most amount of votes win.(We take average if the output is continuous unlike classification "0" or "1")
+
+
+### Bootstrapping:
+
+Instead of giving each tree in Random Forest whole dataset, we create a new training dataset of the same size and randomly pick the data allowing the replacement(repeatation) .
+
+Eg: Lets say we have a dataset of size 5. So their row indexes are [0,1,2,3,4]
+
+So randomly selected with replacements looks like [1, 3, 1, 4, 1]. You can see that 1 is repeated 3 times that means the data of index 1 is used 3 times in the decision tree.
+
+This is done because a row can be picked multiple times, roughly 63.2% of your unique training rows end up inside a given tree's sample, while the remaining ~36.8% are left out. Each tree sees a slightly different slice of reality, so they don't all memorize the exact same noise.
+
+Each decision tree gets its own separate bootstrapped sample, drawn fresh each time. This allows each decision tree to access its own unique training sets without compramizing the nature of the original dataset.
+
+### Out-of-Bag (OOB) Samples:
+
+That left over ~36.8% of rows that wasnt picked for the Tree 1 Bootstrapped dataset is called Tree 1's OOB data.
+
+This is helpful for validation cause the left out data can be used as testset for the same decision tree because the tree never trained on those OOB rows, making them an unbiased, free validation set from the same distribution.
+
+### Bagging:
+
+We train "N" Trees on "N" Bootstrapped Dataset so each tree gets its own Bootstrapped dataset.
+
+For classification we take majority vote. But for regression (continuous data prediction like [10,20,40]) we take the average value cause majority vote can make some predicitons left out.
+
+In ML variance tells how much the prediction of the model changes based on the change in some elements of dataset. This means bootstapping can create much noticable changes if trained on small data or depening on the senistivity of the model.
+
+Averaging/voting across many slightly different trees cancels out individual tree mistakes.
+
+### Feature Sampling:
+
+There is a huge problem with Bagging alone. If a feature is super-strong every tree will take it as the threshold feature meaning each tree may look identical.
+
+We can fix it by only letting each tree access only int(np.sqrt(n)) where n is the number of feature the dataset has and the selected features are randomized.
+
+Eg: a dataset has features [height , length , breadth , speed]
+
+Index wise we write [0,1,2,3]
+
+
+So Using feature sampling we take only 2 feature for dataset and randomly selected index list may be [1,3].
+
+This is done at each node split so the next node has new randamized features to work through.
+
+So the specific dataset only gets [height , speed] as features to use and for double combo randomness.
+
+
+### Boosting:
+
+Training trees sequentially where each new tree fixes the previous tree's errors (e.g., XGBoost), unlike Random Forest where trees train independently in parallel.
+
+It can be used instead of bagging.
