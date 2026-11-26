@@ -159,3 +159,9 @@ class Decision_Tree:
 
         return np.array(predictions)
 
+def Bootstrap(X:np.array , Y:np.array)->tuple[np.ndarray , np.ndarray , np.ndarray , np.ndarray]:
+   
+    n = X.shape[0]
+    rand_list = np.random.choice(n , size=n , replace=True)
+    missing = np.setdiff1d(np.arange(n), rand_list) #finds missing numbers(1 D)
+    return X[rand_list] , Y[rand_list] , X[missing] , Y[missing]

@@ -1,0 +1,4 @@
+import numpy as np
+x = np.array([[1,2,3]])
+n = np.random.choice(x.shape[1] , size=3 , replace=False)
+print(x.shape[1])
